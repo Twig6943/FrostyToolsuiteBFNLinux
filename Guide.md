@@ -1,5 +1,9 @@
 # How to use this thing
 
+# Explanation
+
+The reason why I'm recommending the environment variable is that EA App doesn't allow launch options with special characters. If you have the game on steam just put this to the launch options section; `-dataPath ModData/Default`
+
 # This guide already assumes you have werz's [downgrade patch](https://www.dropbox.com/scl/fi/57szcf9d5cn83jzedu6jf/PVZBFNPREEAAC.7z?rlkey=9ltff7i5tm7mlavdg8ws26hjx&st=ck880b7u&dl=0) for bfn ❗❗❗
 
 1.Download the binaries from the [releases section](https://github.com/Twig6943/FrostyToolsuiteBFNLinux/releases)
@@ -21,12 +25,14 @@ RtWorkQ
 
 5.Load & apply the mods you want
 
-6.Add the `GAME_DATA_DIR` and the path to your modpack (for most people its just `C:\Program Files\EA Games\Plants vs Zombies Garden Warfare\ModData\Default`) 
+6.Add the `GAME_DATA_DIR` environment variable and as for its variable put the path to your modpack folder's location
 
-(You need to get the path for that folder using a wine/windows explorer)
+(You need to get the ModData path using a wine/windows explorer and not your native linux file explorer ❗❗❗)
 
-![image](https://github.com/user-attachments/assets/201b2a05-787c-4c91-bf0a-a8f1af8ff79e)
+`/home/twig/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/PVZ Battle for Neighborville/ModData/Default` ❌
+
+`Z:\home\twig\.var\app\com.valvesoftware.Steam\.local\share\Steam\steamapps\common\PVZ Battle for Neighborville\ModData/Default` ✅
+
+![image](https://github.com/user-attachments/assets/f57cf6a3-9998-4866-b46d-66b4a42f9c1b)
 
 7.Launch the game and everything should work.
-
-
