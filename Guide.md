@@ -1,6 +1,6 @@
 # How to use this thing
 
-1.Download the binaries from the [releases section](https://github.com/Twig6943/FrostyToolsuiteGW1Linux/releases)
+1.Download the binaries from the [releases section](https://github.com/Twig6943/FrostyToolsuiteBFNLinux/releases)
 
 2.Add the following dlloverrides to your wineprefix via `winecfg` :
 
@@ -14,7 +14,7 @@ winmm
 
 3.Run `taskmgr` inside the wineprefix
 
-4.Select the .exe for the fmm gw1 linux build
+4.Select the .exe for the fmm bfn linux build
 
 5.Load & apply the mods you want
 
