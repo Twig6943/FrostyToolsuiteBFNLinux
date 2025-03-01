@@ -1,5 +1,7 @@
 # How to use this thing
 
+### This guide already assumes you have werz's downgrade patch for bfn ❗❗❗
+
 1.Download the binaries from the [releases section](https://github.com/Twig6943/FrostyToolsuiteBFNLinux/releases)
 
 2.Add the following dlloverrides to your wineprefix via `winecfg` :
