@@ -1,10 +1,10 @@
 # How to use this thing
 
-# Explanation
-
-The reason why I'm recommending the environment variable is that EA App doesn't allow launch options with special characters. If you have the game on steam just put this to the launch options section; `-dataPath ModData/Default`
-
 # This guide already assumes you have werz's [downgrade patch](https://www.dropbox.com/scl/fi/57szcf9d5cn83jzedu6jf/PVZBFNPREEAAC.7z?rlkey=9ltff7i5tm7mlavdg8ws26hjx&st=ck880b7u&dl=0) for bfn ❗❗❗
+
+# Steam users
+
+The reason why I'm recommending the environment variable is that EA App doesn't allow launch options with special characters. If you have the game on steam just put this to the launch options section; `-dataPath ModData/Default` and skip `step 6`
 
 1.Download the binaries from the [releases section](https://github.com/Twig6943/FrostyToolsuiteBFNLinux/releases)
 
