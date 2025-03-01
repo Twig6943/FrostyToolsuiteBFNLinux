@@ -1,6 +1,6 @@
 # How to use this thing
 
-### This guide already assumes you have werz's downgrade patch for bfn ❗❗❗
+# This guide already assumes you have werz's downgrade patch for bfn ❗❗❗
 
 1.Download the binaries from the [releases section](https://github.com/Twig6943/FrostyToolsuiteBFNLinux/releases)
 
