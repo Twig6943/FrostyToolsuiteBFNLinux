@@ -25,7 +25,7 @@ namespace FrostySdk
         public int Value => value;
 
         public static implicit operator ManifestFileRef(int inValue) => new ManifestFileRef { value = inValue };
-        public static implicit operator int(ManifestFileRef inRef)   => inRef.value;
+        public static implicit operator int(ManifestFileRef inRef) => inRef.value;
     }
 
     public class ManifestFileInfo
@@ -61,10 +61,8 @@ namespace FrostySdk
     {
         public int SuperBundleCount => superBundles.Count;
 
-        public IEnumerable<string> SuperBundles
-        {
-            get
-            {
+        public IEnumerable<string> SuperBundles {
+            get {
                 for (int i = 0; i < superBundles.Count; i++)
                     yield return superBundles[i];
             }
@@ -72,10 +70,8 @@ namespace FrostySdk
 
         public int CatalogCount => catalogs.Count;
 
-        public IEnumerable<string> Catalogs
-        {
-            get
-            {
+        public IEnumerable<string> Catalogs {
+            get {
                 for (int i = 0; i < catalogs.Count; i++)
                     yield return catalogs[i].Name;
             }
@@ -249,7 +245,7 @@ namespace FrostySdk
             return new ManifestFileRef();
         }
 
-        public bool HasFileInMemoryFs(string name)     =>  memoryFs.ContainsKey(name);
+        public bool HasFileInMemoryFs(string name) => memoryFs.ContainsKey(name);
         public byte[] GetFileFromMemoryFs(string name) => !memoryFs.ContainsKey(name) ? null : memoryFs[name];
 
         public IEnumerable<string> EnumerateFilesInMemoryFs()
@@ -571,7 +567,7 @@ namespace FrostySdk
             foreach (ManifestChunkInfo ci in manifestChunks)
             {
                 ManifestFileInfo fi = ci.file;
-                ChunkAssetEntry entry = new ChunkAssetEntry {Id = ci.guid};
+                ChunkAssetEntry entry = new ChunkAssetEntry { Id = ci.guid };
 
                 string path = (fi.file.IsInPatch ? "native_patch/" : "native_data/") + catalogs[fi.file.CatalogIndex].Name + "/cas_" + fi.file.CasIndex.ToString("D2") + ".cas";
                 entry.Location = AssetDataLocation.CasNonIndexed;
@@ -698,7 +694,7 @@ namespace FrostySdk
                     writer.Write(ci.fileIndex);
                 }
 
-                return writer.ToByteArray();;
+                return writer.ToByteArray(); ;
             }
         }
 
@@ -765,7 +761,7 @@ namespace FrostySdk
                     // bundles
                     for (uint i = 0; i < bundleCount; i++)
                     {
-                        ManifestBundleInfo bi = new ManifestBundleInfo {hash = reader.ReadInt()};
+                        ManifestBundleInfo bi = new ManifestBundleInfo { hash = reader.ReadInt() };
 
                         int startIndex = reader.ReadInt();
                         int count = reader.ReadInt();

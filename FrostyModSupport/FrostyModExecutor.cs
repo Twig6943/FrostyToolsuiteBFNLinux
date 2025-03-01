@@ -667,8 +667,8 @@ namespace Frosty.ModSupport
                         case ModResourceType.Chunk: modBundle.Modify.AddChunk(new Guid(resource.Name)); break;
                     }
                 }
-                
-                label_add_bundles:
+
+            label_add_bundles:
                 // add bundle actions (these are stored in the mod)
                 foreach (int bundleHash in resource.AddedBundles)
                 {
@@ -1068,7 +1068,7 @@ namespace Frosty.ModSupport
             string patchPath = "Patch";
             if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa17 || ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesGardenWarfare2 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
                 patchPath = "Update\\Patch\\Data";
-            else if (ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesBattleforNeighborville || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield5) //bfn and bfv dont have a patch directory
+            else if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield5)
                 patchPath = "Data";
 
             if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Madden20)
@@ -1348,16 +1348,30 @@ namespace Frosty.ModSupport
                                 }
                             }
                         }
+                        if (ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesBattleforNeighborville)
+                        {
+                            if (!Directory.Exists(modDataPath + "Patch"))
+                                Directory.CreateDirectory(modDataPath + "Patch");
+
+                            foreach (string casFilename in Directory.EnumerateFiles(fs.BasePath + patchPath, "*.cas", SearchOption.AllDirectories))
+                            {
+                                FileInfo casFi = new FileInfo(casFilename);
+                                string destPath = casFi.Directory.FullName.ToLower().Replace("\\" + patchPath.ToLower(), "\\" + modDirName.ToLower() + "\\" + patchPath.ToLower());
+                                string tempPath = Path.Combine(destPath, casFi.Name);
+
+                                if (!Directory.Exists(destPath))
+                                    Directory.CreateDirectory(destPath);
+
+                                cmdArgs.Add(new SymLinkStruct(tempPath, casFi.FullName, false));
+                            }
+                        }
                         else if (ProfilesLibrary.DataVersion != (int)ProfileVersion.Fifa17)
                         {
                             // update path
                             cmdArgs.Add(new SymLinkStruct(modDataPath + "Update", fs.BasePath + "Update", true));
                         }
 
-                        if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa19 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Madden20 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa20 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedHeat
-#if FROSTY_DEVELOPER
-                                    || ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesBattleforNeighborville
-#endif
+                        if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa19 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Madden20 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa20 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedHeat || ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesBattleforNeighborville
                                 )
                         {
                             foreach (string casFilename in Directory.EnumerateFiles(fs.BasePath + patchPath, "*.cas", SearchOption.AllDirectories))
@@ -1449,10 +1463,7 @@ namespace Frosty.ModSupport
 
                 cmdArgs.Clear();
 
-                if (ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedHeat
-#if FROSTY_DEVELOPER
-                        || ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesBattleforNeighborville
-#endif
+                if (ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedHeat || ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesBattleforNeighborville
                         )
                 {
                     HeatBundleAction.CasFiles.Clear();
@@ -1527,7 +1538,7 @@ namespace Frosty.ModSupport
                         }
                     }
                 }
-                else if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa19 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Madden20 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa20)
+                else if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa19 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Madden20 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa20 || ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesBattleforNeighborville)
                 {
                     DbObject layout = null;
                     using (DbReader reader = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
@@ -1953,7 +1964,7 @@ namespace Frosty.ModSupport
             cancelToken.ThrowIfCancellationRequested();
 
             // NFS dont require bcrypt
-            if (ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals)
+            if (ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals || ProfilesLibrary.DataVersion != (int)ProfileVersion.PlantsVsZombiesBattleforNeighborville)
             {
                 // delete old useless bcrypt
                 if (File.Exists(fs.BasePath + "bcrypt.dll"))
@@ -2465,7 +2476,7 @@ namespace Frosty.ModSupport
             }
 
             var dirs = new List<string>{ path };
-            
+
             while (dirs.Count > 0)
             {
                 var newDirs = new List<string>();
@@ -2489,7 +2500,7 @@ namespace Frosty.ModSupport
                 foreach (var batch in batches)
                 {
                     var tasks = batch.Select(f => Task.Run(() => SymLinkHelper.DeleteFileSafe(f))).ToArray();
-                    
+
                     try
                     {
                         Task.WaitAll(tasks);

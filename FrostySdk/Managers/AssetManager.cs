@@ -139,18 +139,17 @@ namespace FrostySdk.Managers
         public virtual string AssetType { get; }
 
         public virtual string DisplayName => Filename + ((IsDirty) ? "*" : "");
-        public virtual string Filename
-        {
-            get
-            {
+        public virtual string Filename {
+
+
+
+            get {
                 int id = Name.LastIndexOf('/');
                 return id == -1 ? Name : Name.Substring(id + 1);
             }
         }
-        public virtual string Path
-        {
-            get
-            {
+        public virtual string Path {
+            get {
                 int id = Name.LastIndexOf('/');
                 return id == -1 ? "" : Name.Substring(0, id);
             }
@@ -196,10 +195,8 @@ namespace FrostySdk.Managers
         /// returns true if this asset is considered modified through another linked asset
         /// ie. An ebx would be considered modified if its linked resource has been modified
         /// </summary>
-        public bool IsIndirectlyModified
-        {
-            get
-            {
+        public bool IsIndirectlyModified {
+            get {
                 foreach (AssetEntry entry in LinkedAssets)
                 {
                     if (entry.IsModified)
@@ -212,10 +209,8 @@ namespace FrostySdk.Managers
         /// <summary>
         /// returns true if this asset, or any asset linked to it is dirty
         /// </summary>
-        public virtual bool IsDirty
-        {
-            get
-            {
+        public virtual bool IsDirty {
+            get {
                 if (dirty)
                     return true;
 
@@ -226,8 +221,7 @@ namespace FrostySdk.Managers
                 }
                 return false;
             }
-            set
-            {
+            set {
                 if (dirty != value)
                 {
                     dirty = value;
@@ -382,9 +376,9 @@ namespace FrostySdk.Managers
         public override string AssetType => "res";
 
         //#if FROSTY_DEVELOPER
-//        // @tmp
-//        public override string DisplayName => ("(" + (OriginalSize / 1024.0d).ToString("F2") + "kb) ".PadRight(6) + Filename) + ((IsDirty) ? "*" : "");
-//#endif
+        //        // @tmp
+        //        public override string DisplayName => ("(" + (OriginalSize / 1024.0d).ToString("F2") + "kb) ".PadRight(6) + Filename) + ((IsDirty) ? "*" : "");
+        //#endif
 
         public ulong ResRid;
         public uint ResType;
@@ -1470,31 +1464,31 @@ namespace FrostySdk.Managers
         #endregion
 
         #region -- Get Functions --
-        public int GetSuperBundleId(SuperBundleEntry sbentry) 
+        public int GetSuperBundleId(SuperBundleEntry sbentry)
             => superBundles.FindIndex((SuperBundleEntry sbe) => sbe.Name.Equals(sbentry.Name));
 
-        public int GetSuperBundleId(string sbname) 
+        public int GetSuperBundleId(string sbname)
             => superBundles.FindIndex((SuperBundleEntry sbe) => sbe.Name.Equals(sbname, StringComparison.OrdinalIgnoreCase));
 
-        public SuperBundleEntry GetSuperBundle(int id) 
+        public SuperBundleEntry GetSuperBundle(int id)
             => id >= superBundles.Count ? null : superBundles[id];
 
-        public int GetBundleId(BundleEntry bentry) 
+        public int GetBundleId(BundleEntry bentry)
             => bundles.FindIndex((BundleEntry be) => be.Name.Equals(bentry.Name));
 
-        public int GetBundleId(string name) 
+        public int GetBundleId(string name)
             => bundles.FindIndex((BundleEntry be) => be.Name.Equals(name));
 
-        public BundleEntry GetBundleEntry(int bundleId) 
+        public BundleEntry GetBundleEntry(int bundleId)
             => bundleId >= bundles.Count ? null : bundles[bundleId];
 
-        public AssetEntry GetCustomAssetEntry(string type, string key) 
+        public AssetEntry GetCustomAssetEntry(string type, string key)
             => !customAssetManagers.ContainsKey(type) ? null : customAssetManagers[type].GetAssetEntry(key);
 
-        public T GetCustomAssetEntry<T>(string type, string key) where T : AssetEntry 
+        public T GetCustomAssetEntry<T>(string type, string key) where T : AssetEntry
             => (T)GetCustomAssetEntry(type, key);
 
-        public EbxAssetEntry GetEbxEntry(Guid ebxGuid) 
+        public EbxAssetEntry GetEbxEntry(Guid ebxGuid)
             => !ebxGuidList.ContainsKey(ebxGuid) ? null : ebxGuidList[ebxGuid];
 
         public EbxAsset GetEbx(string name, bool getUnmodifiedData = false) => GetEbx(GetEbxEntry(name), getUnmodifiedData);
@@ -2056,7 +2050,7 @@ namespace FrostySdk.Managers
                 if (head != fs.Head)
                 {
                     bIsPatched = true;
-                    prePatchCache = new List<EbxAssetEntry>();  
+                    prePatchCache = new List<EbxAssetEntry>();
                 }
 
                 int count = reader.ReadInt();

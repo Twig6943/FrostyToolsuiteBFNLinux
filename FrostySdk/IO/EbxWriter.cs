@@ -129,12 +129,12 @@ namespace FrostySdk.IO
         private HashSet<EbxImportReference> imports = new HashSet<EbxImportReference>();
         private Dictionary<EbxImportReference, int> importOrderFw = new Dictionary<EbxImportReference, int>();
         private Dictionary<int, EbxImportReference> importOrderBw = new Dictionary<int, EbxImportReference>();
-        
+
         private byte[] data = null;
         private List<EbxInstance> instances = new List<EbxInstance>();
         private List<EbxArray> arrays = new List<EbxArray>();
         private List<byte[]> arrayData = new List<byte[]>();
-        
+
         private ushort uniqueClassCount = 0;
         private ushort exportedCount = 0;
 
@@ -919,13 +919,7 @@ namespace FrostySdk.IO
                         }
                         else
                         {
-                            boxedValueWriter.Write(0);
-                            EbxBoxedValue boxedValue = new EbxBoxedValue() { Offset = (uint)boxedValueWriter.Position, Type = (ushort)value.Type };
-                            if (value.Type == EbxFieldType.Enum)
-                            {
-                                boxedValue.ClassRef = ProcessClass(value.Value.GetType());
-                            }
-
+                            EbxBoxedValue boxedValue = new EbxBoxedValue() { Offset = 0, Type = (ushort)value.Type };
                             if (value.Type == EbxFieldType.Struct)
                             {
                                 int count = typesToProcess.Count;
@@ -933,11 +927,16 @@ namespace FrostySdk.IO
                                 if (count != typesToProcess.Count)
                                     ProcessType((int)boxedValue.ClassRef);
 
-                                WriteField(value.Value, EbxFieldType.Struct, 0, boxedValueWriter, isReference);
+                                using (NativeWriter tempWriter = new NativeWriter(new MemoryStream()))
+                                {
+                                    WriteField(value.Value, EbxFieldType.Struct, 0, tempWriter, isReference);
+                                    boxedValueData.Add(((MemoryStream)tempWriter.BaseStream).ToArray());
+                                }
                             }
                             else
                             {
-                                boxedValueWriter.Write(WriteBoxedValueRef(value));
+                                boxedValue.ClassRef = 0;
+                                boxedValueData.Add(WriteBoxedValueRef(value));
                             }
                             boxedValues.Add(boxedValue);
                         }
@@ -1058,6 +1057,38 @@ namespace FrostySdk.IO
                 WriteEbxObjects(writeObjs, asset.FileGuid);
             }
         }
+        protected byte[] WriteBoxedValueRef(BoxedValueRef value)
+        {
+            using (NativeWriter writer = new NativeWriter(new MemoryStream()))
+            {
+                object obj = value.Value;
+                switch (value.Type)
+                {
+                    case EbxFieldType.TypeRef: writer.Write((ulong)AddString((TypeRef)obj)); break;
+                    case EbxFieldType.FileRef: writer.Write((ulong)AddString((FileRef)obj)); break;
+                    case EbxFieldType.CString: writer.Write(AddString((CString)obj)); break;
+                    case EbxFieldType.Enum: writer.Write((int)obj); break;
+                    case EbxFieldType.Float32: writer.Write((float)obj); break;
+                    case EbxFieldType.Float64: writer.Write((double)obj); break;
+                    case EbxFieldType.Boolean: writer.Write((byte)(((bool)obj) ? 0x01 : 0x00)); break;
+                    case EbxFieldType.Int8: writer.Write((sbyte)obj); break;
+                    case EbxFieldType.UInt8: writer.Write((byte)obj); break;
+                    case EbxFieldType.Int16: writer.Write((short)obj); break;
+                    case EbxFieldType.UInt16: writer.Write((ushort)obj); break;
+                    case EbxFieldType.Int32: writer.Write((int)obj); break;
+                    case EbxFieldType.UInt32: writer.Write((uint)obj); break;
+                    case EbxFieldType.Int64: writer.Write((long)obj); break;
+                    case EbxFieldType.UInt64: writer.Write((ulong)obj); break;
+                    case EbxFieldType.Guid: writer.Write((Guid)obj); break;
+                    case EbxFieldType.Sha1: writer.Write((Sha1)obj); break;
+                    case EbxFieldType.String: writer.WriteFixedSizedString((string)obj, 32); break;
+                    case EbxFieldType.ResourceRef: writer.Write((ResourceRef)obj); break;
+                }
+
+                return ((MemoryStream)writer.BaseStream).ToArray();
+            }
+        }
+
 
         public void WriteEbxObject(object inObj, Guid fileGuid)
         {
@@ -1075,7 +1106,6 @@ namespace FrostySdk.IO
                 object nxtObj = subObjs[0];
                 subObjs.RemoveAt(0);
 
-                // add all sub objects for extraction
                 subObjs.AddRange(ExtractClass(nxtObj.GetType(), nxtObj));
             }
 
@@ -1237,7 +1267,7 @@ namespace FrostySdk.IO
                 WritePadding(16);
             }
 
-            
+
             boxedValueOffset = (uint)(Position - stringsLength - stringsOffset);
             if (boxedValueData.Count > 0)
             {
@@ -1370,7 +1400,7 @@ namespace FrostySdk.IO
         private ushort ProcessClass(Type objType)
         {
             bool inherited = false;
-            if (objType.BaseType.Namespace == "FrostySdk.Ebx")
+            if (objType.BaseType != null && objType.BaseType.Namespace == "FrostySdk.Ebx")
             {
                 ProcessClass(objType.BaseType);
                 inherited = true;
@@ -1380,19 +1410,10 @@ namespace FrostySdk.IO
             if (index != -1)
                 return (ushort)index;
 
-            EbxClassMetaAttribute cta = objType.GetCustomAttribute<EbxClassMetaAttribute>();
-            PropertyInfo[] allProps = objType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            List<PropertyInfo> pis = new List<PropertyInfo>();
+            EbxClass cta = GetClass(objType);
 
-            foreach (PropertyInfo pi in allProps)
-            {
-                if (pi.GetCustomAttribute<IsTransientAttribute>() != null && !flags.HasFlag(EbxWriteFlags.IncludeTransient))
-                    continue;
-                pis.Add(pi);
-            }
-
-            index = AddClass(objType.Name, fieldTypes.Count, (byte)(pis.Count + ((inherited) ? 1 : 0)),
-                cta.Alignment, cta.Flags, cta.Size, 0, objType);
+            index = AddClass(cta.Name, fieldTypes.Count, (byte)(cta.FieldCount + (inherited ? 1 : 0)),
+                cta.Alignment, cta.Type, cta.Size, cta.SecondSize, objType);
 
             // Inherited
             if (inherited)
@@ -1400,18 +1421,26 @@ namespace FrostySdk.IO
 
             if (objType.IsEnum)
             {
-                //uint enumIndex = 0;
                 string[] enumNames = objType.GetEnumNames();
 
                 foreach (string enumName in enumNames)
                 {
                     AddTypeName(enumName);
-                    //enumIndex++;
                 }
             }
-            else
+            else if (!objType.IsPrimitive && objType != typeof(string))
             {
                 // Fields
+                PropertyInfo[] allProps = objType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                List<PropertyInfo> pis = new List<PropertyInfo>();
+
+                foreach (PropertyInfo pi in allProps)
+                {
+                    if (pi.GetCustomAttribute<IsTransientAttribute>() != null && !flags.HasFlag(EbxWriteFlags.IncludeTransient))
+                        continue;
+                    pis.Add(pi);
+                }
+
                 foreach (PropertyInfo pi in pis)
                 {
                     EbxFieldMetaAttribute fta = pi.GetCustomAttribute<EbxFieldMetaAttribute>();
@@ -1434,11 +1463,9 @@ namespace FrostySdk.IO
                         Type arrayType = pi.PropertyType;
                         if (FindExistingClass(arrayType) == -1)
                         {
-
                             if (!typesToProcess.Contains(arrayType))
                             {
                                 arrayTypes.Add(fta);
-                                //AddClass("array", 0, 1, 4, fta.Flags, 4, 0, arrayType);
                                 AddClass(pi, arrayType);
                             }
 
@@ -1463,6 +1490,7 @@ namespace FrostySdk.IO
 
             return (ushort)index;
         }
+
 
         private void ProcessType(int index)
         {
@@ -1908,16 +1936,32 @@ namespace FrostySdk.IO
                         else
                         {
                             EbxBoxedValue boxedValue = new EbxBoxedValue() { Offset = 0, Type = (ushort)value.Type };
+                            if (value.Type == EbxFieldType.Struct)
+                            {
+                                int count = typesToProcess.Count;
+                                boxedValue.ClassRef = ProcessClass(value.Value.GetType());
+                                if (count != typesToProcess.Count)
+                                    ProcessType((int)boxedValue.ClassRef);
 
+                                using (NativeWriter tempWriter = new NativeWriter(new MemoryStream()))
+                                {
+                                    WriteField(value.Value, EbxFieldType.Struct, 0, tempWriter, isReference);
+                                    boxedValueData.Add(((MemoryStream)tempWriter.BaseStream).ToArray());
+                                }
+                            }
+                            else
+                            {
+                                boxedValueData.Add(WriteBoxedValueRef(value));
+                            }
                             boxedValues.Add(boxedValue);
-                            boxedValueData.Add(WriteBoxedValueRef(value));
                         }
 
-                        Write(index);
-                        Write((ulong)0);
-                        Write((uint)0);
+                        writer.Write(index);
+                        writer.Write((ulong)0);
+                        writer.Write((uint)0);
                     }
                     break;
+
 
 
                 default: throw new InvalidDataException("Error");
@@ -2018,18 +2062,75 @@ namespace FrostySdk.IO
             return offset;
         }
 
-        internal EbxClass GetClass(Type objType)
+
+
+        public static class DefinedEbxClass
         {
-            EbxClass? classType = null;
-            foreach (TypeInfoGuidAttribute attr in objType.GetCustomAttributes<TypeInfoGuidAttribute>())
+            private static readonly Dictionary<Type, EbxClass> primitiveClasses = new Dictionary<Type, EbxClass>
+    {
+        { typeof(bool), new EbxClass { Name = "Boolean", Type = (ushort)EbxFieldType.Boolean, Alignment = 1, Size = 1 } },
+        { typeof(sbyte), new EbxClass { Name = "Int8", Type = (ushort)EbxFieldType.Int8, Alignment = 1, Size = 1 } },
+        { typeof(byte), new EbxClass { Name = "UInt8", Type = (ushort)EbxFieldType.UInt8, Alignment = 1, Size = 1 } },
+        { typeof(short), new EbxClass { Name = "Int16", Type = (ushort)EbxFieldType.Int16, Alignment = 2, Size = 2 } },
+        { typeof(ushort), new EbxClass { Name = "UInt16", Type = (ushort)EbxFieldType.UInt16, Alignment = 2, Size = 2 } },
+        { typeof(int), new EbxClass { Name = "Int32", Type = (ushort)EbxFieldType.Int32, Alignment = 4, Size = 4 } },
+        { typeof(uint), new EbxClass { Name = "UInt32", Type = (ushort)EbxFieldType.UInt32, Alignment = 4, Size = 4 } },
+        { typeof(long), new EbxClass { Name = "Int64", Type = (ushort)EbxFieldType.Int64, Alignment = 8, Size = 8 } },
+        { typeof(ulong), new EbxClass { Name = "UInt64", Type = (ushort)EbxFieldType.UInt64, Alignment = 8, Size = 8 } },
+        { typeof(float), new EbxClass { Name = "Float32", Type = (ushort)EbxFieldType.Float32, Alignment = 4, Size = 4 } },
+        { typeof(double), new EbxClass { Name = "Float64", Type = (ushort)EbxFieldType.Float64, Alignment = 8, Size = 8 } },
+        { typeof(string), new EbxClass { Name = "String", Type = (ushort)EbxFieldType.String, Alignment = 32, Size = 32 } },
+        { typeof(Guid), new EbxClass { Name = "Guid", Type = (ushort)EbxFieldType.Guid, Alignment = 16, Size = 16 } },
+        { typeof(Sha1), new EbxClass { Name = "Sha1", Type = (ushort)EbxFieldType.Sha1, Alignment = 20, Size = 20 } }
+    };
+
+            public static EbxClass GetPrimitiveClass(Type type)
             {
-                if (classType == null)
-                    classType = EbxReaderV2.std.GetClass(attr.Guid);
-                break;
+                if (primitiveClasses.TryGetValue(type, out var ebxClass))
+                    return ebxClass;
+
+                throw new InvalidOperationException($"Unsupported type: {type.FullName}");
             }
 
-            return classType.Value;
+            public static EbxClass GetEnumClass(Type enumType)
+            {
+                return new EbxClass
+                {
+                    Name = enumType.Name,
+                    Type = (ushort)EbxFieldType.Enum,
+                    Alignment = 4,
+                    Size = 4,
+                    FieldCount = 0,
+                    FieldIndex = 0,
+                    Index = 0
+                };
+            }
         }
+
+        internal EbxClass GetClass(Type objType)
+        {
+            if (objType.IsPrimitive || objType == typeof(string))
+            {
+                return DefinedEbxClass.GetPrimitiveClass(objType);
+            }
+
+            if (objType.IsEnum)
+            {
+                return DefinedEbxClass.GetEnumClass(objType);
+            }
+
+            foreach (TypeInfoGuidAttribute attr in objType.GetCustomAttributes<TypeInfoGuidAttribute>())
+            {
+                var classType = EbxReaderV2.std.GetClass(attr.Guid);
+                if (classType.HasValue)
+                    return classType.Value;
+            }
+
+            throw new InvalidOperationException($"No type for {objType.FullName}");
+        }
+
+
+
 
         internal EbxClass GetClass(Guid guid) => EbxReaderV2.std.GetClass(guid).Value;
 

@@ -33,6 +33,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Navigation;
 
+
 namespace FrostyEditor
 {
     /// <summary>
@@ -148,8 +149,7 @@ namespace FrostyEditor
             BookmarkContextPicker.SelectedItem = Bookmarks.BookmarkDb.CurrentContext;
             TaskbarItemInfo = new System.Windows.Shell.TaskbarItemInfo();
 
-            m_clearRecentsMenuItem.Click += delegate (object sender, RoutedEventArgs e)
-            {
+            m_clearRecentsMenuItem.Click += delegate (object sender, RoutedEventArgs e) {
                 m_recentProjects.Clear();
                 recentProjectsMenuItem.Items.Clear();
                 recentProjectsMenuItem.IsEnabled = false;
@@ -170,7 +170,7 @@ namespace FrostyEditor
             {
                 MenuItem foundMenuItem = null;
                 foreach (MenuItem menuItem in menu.Items)
-                { 
+                {
                     // contains top level menu item already
                     if (menuExtension.TopLevelMenuName.Equals(menuItem.Header as string, StringComparison.OrdinalIgnoreCase))
                     {
@@ -334,7 +334,7 @@ namespace FrostyEditor
                 int timerInterval = Config.Get<int>("AutosavePeriod", 5) * 60 * 1000;
                 if (timerInterval > 0)
                 {
-                    m_autoSaveTimer = new System.Timers.Timer {Interval = timerInterval};
+                    m_autoSaveTimer = new System.Timers.Timer { Interval = timerInterval };
                     m_autoSaveTimer.Elapsed += AutoSaveTimer_Elapsed;
                     m_autoSaveTimer.AutoReset = false;
                     m_autoSaveTimer.Start();
@@ -395,7 +395,7 @@ namespace FrostyEditor
 
             // get all mods
             List<string> modPaths = new List<string>();
-            
+
             DirectoryInfo modDirectory = new DirectoryInfo($"Mods/{ProfilesLibrary.ProfileName}");
             foreach (string modPath in Directory.EnumerateFiles($"Mods/{ProfilesLibrary.ProfileName}/", "*.fbmod", SearchOption.AllDirectories))
             {
@@ -408,12 +408,12 @@ namespace FrostyEditor
                     modPaths.Add(Path.GetFileName(modPath));
                 }
             }
-            
+
             Random r = new Random();
             string editorModName = $"EditorMod_{r.Next(1000, 9999):D4}.fbmod";
-            
+
             // create temporary editor mod
-            ModSettings editorSettings = new ModSettings { Title = editorModName, Author = "Frosty Editor", Version = App.Version, Category = "Editor"};
+            ModSettings editorSettings = new ModSettings { Title = editorModName, Author = "Frosty Editor", Version = App.Version, Category = "Editor" };
 
             // apply mod
             string additionalArgs = Config.Get<string>("CommandLineArgs", "", ConfigScope.Game) + " ";
@@ -425,7 +425,7 @@ namespace FrostyEditor
             try
             {
                 // run mod applying process
-                FrostyTaskWindow.Show("Launching", "", (logger) => 
+                FrostyTaskWindow.Show("Launching", "", (logger) =>
                 {
                     try
                     {
@@ -735,7 +735,7 @@ namespace FrostyEditor
             {
                 editor = definition.GetEditor(App.Logger);
             }
-            
+
             if (editor == null)
             {
                 if (!createDefaultEditor)
@@ -851,21 +851,26 @@ namespace FrostyEditor
             }
         }
 
-        private void TabItem_MouseMove(object sender, MouseEventArgs e) {
-            if (!(e.Source is FrostyTabItem tabItem)) {
+        private void TabItem_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!(e.Source is FrostyTabItem tabItem))
+            {
                 return;
             }
 
-            if (Mouse.PrimaryDevice.LeftButton == MouseButtonState.Pressed) {
+            if (Mouse.PrimaryDevice.LeftButton == MouseButtonState.Pressed)
+            {
                 DragDrop.DoDragDrop(tabItem, tabItem, DragDropEffects.All);
             }
         }
 
-        private void TabItem_Move(object sender, DragEventArgs e) {
+        private void TabItem_Move(object sender, DragEventArgs e)
+        {
             if (e.Source is FrostyTabItem tabItemTarget &&
                 e.Data.GetData(typeof(FrostyTabItem)) is FrostyTabItem tabItemSource &&
                 !tabItemTarget.Equals(tabItemSource) &&
-                tabItemTarget.Parent is FrostyTabControl tabControl) {
+                tabItemTarget.Parent is FrostyTabControl tabControl)
+            {
                 int targetIndex = tabControl.Items.IndexOf(tabItemTarget);
 
                 tabControl.Items.Remove(tabItemSource);
@@ -1098,7 +1103,7 @@ namespace FrostyEditor
             target.Target.NavigateTo(false);
         }
 
-#endregion
+        #endregion
 
         #region -- Bookmarks --
 
@@ -1160,14 +1165,14 @@ namespace FrostyEditor
                         }
                         else
                         {
-                            newBookmark = new Bookmarks.BookmarkItem(target, parent) {Parent = parent};
+                            newBookmark = new Bookmarks.BookmarkItem(target, parent) { Parent = parent };
                             parent.Children.Add(newBookmark);
                             parent.IsExpanded = true;
                         }
                     }
                     else
                     {
-                        newBookmark = new Bookmarks.BookmarkItem(target, parent) {Parent = parent};
+                        newBookmark = new Bookmarks.BookmarkItem(target, parent) { Parent = parent };
                         parent.Children.Add(newBookmark);
                         parent.IsExpanded = true;
                     }
@@ -1206,7 +1211,7 @@ namespace FrostyEditor
         private void AddBookmarkFolder()
         {
             Bookmarks.BookmarkItem parent = BookmarkTreeView.SelectedItem as Bookmarks.BookmarkItem;
-            Bookmarks.BookmarkItem newItem = new Bookmarks.BookmarkItem(new Bookmarks.FolderBookmarkTarget(), null) {Name = "New Folder"};
+            Bookmarks.BookmarkItem newItem = new Bookmarks.BookmarkItem(new Bookmarks.FolderBookmarkTarget(), null) { Name = "New Folder" };
 
             if (parent != null)
             {
@@ -1276,7 +1281,7 @@ namespace FrostyEditor
             FrostyEditableLabel label = FindVisualChild<FrostyEditableLabel>(gen.ContainerFromItem(stack.Pop()));
             label.Text = (label.Text == null) ? "" : label.Text;
             label.BeginEdit();
-        }   
+        }
 
         private void BookmarkTreeViewItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -1376,7 +1381,7 @@ namespace FrostyEditor
         private void TriggerPulseAnimation()
         {
             BookmarkTabItem.Background = NormalBrush;
-            DoubleAnimation lastFadeAnimation = new DoubleAnimation(1.0, 0.0, new Duration(TimeSpan.FromSeconds(1.0))) {FillBehavior = FillBehavior.HoldEnd};
+            DoubleAnimation lastFadeAnimation = new DoubleAnimation(1.0, 0.0, new Duration(TimeSpan.FromSeconds(1.0))) { FillBehavior = FillBehavior.HoldEnd };
             NormalBrush.BeginAnimation(LinearGradientBrush.OpacityProperty, lastFadeAnimation);
         }
 
@@ -1489,8 +1494,7 @@ namespace FrostyEditor
                     }
 
                     // begin a FrostyTask to indicate the project is being saved
-                    FrostyTaskWindow.Show("Saving Project", m_project.Filename, delegate
-                    {
+                    FrostyTaskWindow.Show("Saving Project", m_project.Filename, delegate {
                         m_project.Save();
                         AddRecentProject(m_project.Filename);
                     });
@@ -1545,8 +1549,7 @@ namespace FrostyEditor
                     Height = 22
                 };
 
-                currentMenuItem.Click += delegate (object sender, RoutedEventArgs e)
-                {
+                currentMenuItem.Click += delegate (object sender, RoutedEventArgs e) {
                     // check if the recent project no longer exists
                     if (!File.Exists(recentProject))
                     {
