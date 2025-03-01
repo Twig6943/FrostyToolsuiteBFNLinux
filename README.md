@@ -6,7 +6,7 @@ This build has both the bfn profile and the frosty mod manager linux patch.
 
 # Please keep in mind that this is experimental and not everything works ❗
 
-# [Example mods](https://github.com/Twig6943/FrostyToolsuiteBFNLinux/tree/main/example-mods) (Contact me on discord if you have a mod that works and would like to submit it here)
+# [Example mods](https://github.com/Twig6943/FrostyToolsuiteBFNLinux/tree/main/example-mods) 
 
 # Works
 
