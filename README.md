@@ -4,7 +4,7 @@ This build has both the bfn profile and the frosty mod manager linux patch.
 
 (Although it says "Linux" this is just the windows version with additional tweaks. Which also works on windows, duh)
 
-# Please keep in mind that this is experimental
+# Please keep in mind that this is experimental ❗
 
 # [Guide 📕](https://github.com/Twig6943/FrostyToolsuiteBFNLinux/blob/main/Guide.md)
 
