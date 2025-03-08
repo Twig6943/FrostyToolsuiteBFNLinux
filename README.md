@@ -15,6 +15,7 @@ This build has both the bfn profile and the frosty mod manager linux patch.
 # Doesn't work
 
 `Texture modding`
+
 [Modifying soldier](https://github.com/Twig6943/FrostyToolsuiteBFNLinux/issues/1)
 
 # [Guide 📕](https://github.com/Twig6943/FrostyToolsuiteBFNLinux/blob/main/Guide.md)
