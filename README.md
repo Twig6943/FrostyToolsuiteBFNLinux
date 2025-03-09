@@ -12,9 +12,10 @@ This build has both the bfn profile and the frosty mod manager linux patch.
 
 `Simple edits like ai.fbmod`
 
-# Doesn't work
+# Unstable
 
 `Texture modding`
+`Editing soldiers`
 
 [Modifying soldier](https://github.com/Twig6943/FrostyToolsuiteBFNLinux/issues/1)
 
