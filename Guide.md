@@ -33,6 +33,6 @@ RtWorkQ
 
 `Z:\home\twig\.var\app\com.valvesoftware.Steam\.local\share\Steam\steamapps\common\PVZ Battle for Neighborville\ModData\Default` ✅
 
-![](/assets/1.png)
+![](/assets/2.png)
 
 7.Launch the game and everything should work.
