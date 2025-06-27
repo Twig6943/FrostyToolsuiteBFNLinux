@@ -1,4 +1,4 @@
-# This guide already assumes you have werz's [downgrade patch](https://github.com/Twig6943/BFN_PreEAAC_Patch/releases) for bfn ❗❗❗
+# This guide already assumes you have [the downgrade patch](https://github.com/Twig6943/BFN_PreEAAC_Patch/releases) for bfn ❗❗❗
 
 # Steam users
 
