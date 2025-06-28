@@ -10,14 +10,14 @@ The reason why I'm recommending the environment variable is that EA App doesn't 
 
 2.Add the following dlloverrides to your wineprefix via `winecfg` & environment variable :
 
-###### Winecfg
+### Winecfg
 
 ```sh
 winmm
 RtWorkQ
 ```
 
-###### Environment variable
+### Environment variable
 
 ```sh
 WINEDLLOVERRIDES=winmm=n,b;RtWorkQ=n,b;
