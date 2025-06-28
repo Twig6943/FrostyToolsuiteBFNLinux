@@ -8,14 +8,18 @@ The reason why I'm recommending the environment variable is that EA App doesn't 
 
 1.Download the binaries from the [releases section](https://github.com/Twig6943/FrostyToolsuiteBFNLinux/releases) (Run as administrator and goto step 5 if you are on windows.)
 
-2.Add the following dlloverrides to your wineprefix via `winecfg` :
+2.Add the following dlloverrides to your wineprefix via `winecfg` & environment variable :
 
+###### Winecfg
 
-```
+```sh
 winmm
 RtWorkQ
 ```
 
+```sh
+WINEDLLOVERRIDES=winmm=n,b;RtWorkQ=n,b;
+```
 
 (Should be set to `native,builtin`)
 
