@@ -17,6 +17,8 @@ winmm
 RtWorkQ
 ```
 
+###### Environment variable
+
 ```sh
 WINEDLLOVERRIDES=winmm=n,b;RtWorkQ=n,b;
 ```
