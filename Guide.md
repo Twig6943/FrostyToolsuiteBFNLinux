@@ -20,7 +20,7 @@ RtWorkQ
 ### Environment variable
 
 ```sh
-WINEDLLOVERRIDES=winmm=n,b;RtWorkQ=n,b;
+WINEDLLOVERRIDES=winmm=n,b;RtWorkQ=n,b
 ```
 
 (Should be set to `native,builtin`)
